@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <title>Create candidate</title>
+</head>
+<body>
+    <h1>Create candidate:</h1>
+    <form action="/candidates" th:object="${candidate}" method="post" enctype="multipart/form-data">
+        <label>First Name: <input type="text" th:field="*{firstName}"/></label><br/>
+        <label>Last Name: <input type="text" th:field="*{lastName}"/></label><br/>
+        <label>File:<input type="file" name="file" multiple="multiple"/></label>
+        <input type="submit" value="Submit"/>
+    </form>
+</body>
+</html>
