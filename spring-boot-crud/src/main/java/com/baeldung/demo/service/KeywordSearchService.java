@@ -1,24 +1,18 @@
 package com.baeldung.demo.service;
 
 
-
 import com.baeldung.demo.model.Resumes;
-import groovy.util.logging.Slf4j;
 import org.elasticsearch.index.query.QueryBuilders;
-
-import org.elasticsearch.search.SearchHits;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 
 @Service
-@Slf4j
 public class KeywordSearchService {
 
     private static final String INDEX_NAME ="resumes";
@@ -31,22 +25,29 @@ public class KeywordSearchService {
                 .withQuery(QueryBuilders.matchQuery("fileName", keyword))
                 .build();
 
-//
-//
-//        SearchHits<Resumes> products = elasticsearchOperations.search(
-//                searchQuery,
-//                Resumes.class,
-//                IndexCoordinates.of(PRODUCT_INDEX_NAME));
+
+
+        SearchHits<Resumes> resumes = elasticsearchOperations.search(
+                searchQuery,  Resumes.class,
+                IndexCoordinates.of(INDEX_NAME));
+
+
+        System.out.println(resumes.getSearchHits().size() +" result  = size ");
+
+        resumes.getSearchHits().forEach(searchHit->{
+            System.out.println((searchHit.getContent().getContent()));
+        });
+
 
         // Execute the search query
-        List<Resumes> searchResults = elasticsearchOperations.queryForList(searchQuery, Resumes.class);
+//        List<Resumes> searchResults = elasticsearchOperations.queryForList(searchQuery, Resumes.class);
 
-        System.out.println(searchResults.size() +" result  = size ");
+
 
         // Process search results as needed
-        for (Resumes document : searchResults) {
-            System.out.println(document);
-        }
+//        for (Resumes document : searchResults) {
+//            System.out.println(document);
+//        }
 
 
 

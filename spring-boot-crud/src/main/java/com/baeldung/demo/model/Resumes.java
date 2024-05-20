@@ -1,5 +1,9 @@
 package com.baeldung.demo.model;
 
+
+import org.springframework.data.elasticsearch.annotations.Document;
+
+@Document(indexName = "resumes")
 public class Resumes {
     private String content;
     private ResumeDetails resumeDetails;
