@@ -10,5 +10,15 @@
     <input type="text" name="keyword" placeholder="Entrez un mot-clé" required>
     <button type="submit">Rechercher</button>
 </form>
+<h2>Fichiers téléchargés :</h2>
+<ul>
+    <li th:each="candidate : ${candidates}" class="candidate">
+        <ul>
+            <li th:each="file : ${candidate.fileName}">
+                <a th:href="@{/candidates/download/{file}(file=${file})}" th:text="${file}"></a>
+            </li>
+        </ul>
+    </li>
+</ul>
 </body>
 </html>
