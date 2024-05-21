@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<h1>Recherche de CV</h1>
+<form action="#" method="post" th:action="@{/chercher}">
+    <input type="text" name="keyword" placeholder="Entrez un mot-clé" required>
+    <button type="submit">Rechercher</button>
+</form>
+<h2>Fichiers téléchargés :</h2>
+<ul>
+    <li th:each="candidate : ${candidates}" class="candidate">
+        <p th:text="${candidate.firstName + ' ' + candidate.lastName}"></p>
+        <ul>
+            <li th:each="file : ${candidate.fileName}">
+                <a th:href="@{/candidates/download/{file}(file=${file})}" download>
+                    <i class="fa fa-download"></i>
+                    <span th:text="${file}"></span>
+                </a>
+            </li>
+        </ul>
+    </li>
+</ul>
+</body>
+</html>
