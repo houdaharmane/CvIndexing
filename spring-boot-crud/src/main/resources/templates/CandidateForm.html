@@ -11,5 +11,13 @@
         <label>File:<input type="file" name="file" multiple="multiple"/></label>
         <input type="submit" value="Submit"/>
     </form>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('form').addEventListener('submit', function() {
+                window.location.href = '/chercher';
+            });
+        });
+
+    </script>
 </body>
 </html>
