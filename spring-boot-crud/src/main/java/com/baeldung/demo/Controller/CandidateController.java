@@ -6,16 +6,23 @@ import com.baeldung.demo.service.CandidateService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+
 
 @Controller
 @RequestMapping("/candidates")
@@ -59,8 +66,19 @@ public class CandidateController {
 
         candidateService.save(candidate);
 
-
         return "redirect:/chercher";
     }
+    @GetMapping("/download/{file}")
+    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable("file") String fileName) throws IOException {
+        File file = new File(UPLOAD_DIR + File.separator + fileName);
+        if (!file.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .body(resource);
+    }
 }
