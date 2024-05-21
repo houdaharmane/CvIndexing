@@ -3,7 +3,9 @@ package com.baeldung.demo.Controller;
 
 import com.baeldung.demo.model.Candidate;
 import com.baeldung.demo.service.CandidateService;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -57,12 +59,8 @@ public class CandidateController {
 
         candidateService.save(candidate);
 
-        List<Candidate> listCandidate = candidateService.findAll();
 
-        listCandidate.forEach(candidate1 -> System.out.println(candidate1.getId()));
-
-        model.addAttribute("candidates", listCandidate);
-        return "ListCandidate";
+        return "redirect:/chercher";
     }
 
 }
