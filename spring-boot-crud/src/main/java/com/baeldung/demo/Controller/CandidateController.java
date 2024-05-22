@@ -48,19 +48,21 @@ public class CandidateController {
 
     @PostMapping
     public String createCandidate(@ModelAttribute("candidate") Candidate candidate,
-                                  @RequestParam("file") MultipartFile file) throws IOException {
+                                  @RequestParam("files") MultipartFile [] files) throws IOException {
         File uploadDirectory = new File(UPLOAD_DIR);
         if (!uploadDirectory.exists()) {
             uploadDirectory.mkdirs();
         }
+        List<String> fileNames = new ArrayList<>();
+        for (MultipartFile file : files) {
+            byte[] bytes = file.getBytes();
+            String fileName = file.getOriginalFilename();
+            Path filePath = Paths.get(UPLOAD_DIR + File.separator + fileName);
+            Files.write(filePath, bytes);
+            fileNames.add(fileName);
+        }
 
-        byte[] bytes = file.getBytes();
-        String fileName = file.getOriginalFilename();
-        Path filePath = Paths.get(UPLOAD_DIR + File.separator + fileName);
-
-        Files.write(filePath, bytes);
-
-        candidate.setFileName(fileName.toString());
+        candidate.setFileNameList(fileNames);
 
         candidateService.save(candidate);
         return "redirect:/chercher";
