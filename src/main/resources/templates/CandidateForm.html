@@ -4,41 +4,133 @@
     <meta charset="UTF-8">
     <title>Create Candidate</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+        }
+        .sidebar {
+            height: 100vh;
+            width: 200px;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            position: fixed;
+            transition: transform 0.3s ease;
+        }
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #333;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #ddd;
+            color: #000;
+        }
+        .sidebar .logout {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+        }
+        .content {
+            margin-left: 200px;
+            padding: 20px;
+            width: 100%;
+            transition: margin-left 0.3s ease;
+        }
+        .content.full-width {
+            margin-left: 0;
+        }
+        .toggle-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            cursor: pointer;
+        }
+        .toggle-button i {
+            font-size: 24px;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h1>Create Candidate</h1>
-    <form th:action="@{/candidates}" th:object="${candidate}" method="post" enctype="multipart/form-data" id="candidate-form">
-        <div class="form-group">
-            <label for="firstName">First Name:</label>
-            <input type="text" class="form-control" id="firstName" th:field="*{firstName}" required />
-        </div>
-        <div class="form-group">
-            <label for="lastName">Last Name:</label>
-            <input type="text" class="form-control" id="lastName" th:field="*{lastName}" required />
-        </div>
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" class="form-control" id="email" th:field="*{email}" required />
-        </div>
-        <div class="form-group">
-            <label>Files:</label>
-            <div id="file-input-container">
-                <div class="file-input-wrapper">
-                    <input type="file" name="files" class="form-control-file" />
-                </div>
+<div class="toggle-button" id="toggle-sidebar-button">
+    <i class="fas fa-bars"></i>
+</div>
+<div class="sidebar" id="sidebar">
+    <a href="login.html">Login</a>
+    <a href="candidateform.html">Candidate Form</a>
+    <a href="search.html">Search</a>
+    <a href="#" class="logout">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+</div>
+<div class="content" id="content">
+    <div class="container mt-5">
+        <h1>Create Candidate</h1>
+        <form th:action="@{/candidates}" th:object="${candidate}" method="post" enctype="multipart/form-data" id="candidate-form">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" class="form-control" id="firstName" th:field="*{firstName}" required />
             </div>
-            <button type="button" class="btn btn-secondary" id="add-file-button">Add Another File</button>
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" class="form-control" id="lastName" th:field="*{lastName}" required />
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" th:field="*{email}" required />
+            </div>
+            <div class="form-group">
+                <label>Files:</label>
+                <div id="file-input-container">
+                    <div class="file-input-wrapper">
+                        <input type="file" name="files" class="form-control-file" />
+                    </div>
+                    <br>
+                </div>
+                <button type="button" class="btn btn-secondary" id="add-file-button">Add Another File</button>
+            </div>
+
+            <table class="table mt-5">
+                <thead>
+                <tr>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">File Name</th>
+                </tr>
+                </thead>
+                <tbody id="candidates-table-body">
+                <!-- Rows for candidates will be dynamically added here -->
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-primary" id="add-candidate-button">Add Candidate</button>
+            <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
+        </form>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('content');
+        const toggleButton = document.getElementById('toggle-sidebar-button');
+
+        toggleButton.addEventListener('click', function() {
+            sidebar.classList.toggle('hidden');
+            content.classList.toggle('full-width');
+        });
+
         const fileInputContainer = document.getElementById('file-input-container');
         const addFileButton = document.getElementById('add-file-button');
+        const addCandidateButton = document.getElementById('add-candidate-button');
+        const submitButton = document.getElementById('submit-button');
 
         addFileButton.addEventListener('click', function() {
             const fileInputWrapper = document.createElement('div');
@@ -47,10 +139,24 @@
             fileInputContainer.appendChild(fileInputWrapper);
         });
 
-        document.getElementById('candidate-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            this.submit();
+        addCandidateButton.addEventListener('click', function() {
+            addCandidateToTable();
         });
+
+        submitButton.addEventListener('click', function() {
+            window.location.href = "search.html";
+        });
+
+        function addCandidateToTable() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+
+            const tableBody = document.getElementById('candidates-table-body');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = '<td>' + firstName + '</td>' + '<td>' + lastName + '</td>' + '<td>' + email + '</td>' + '<td>' + 'File Name' + '</td>';
+            tableBody.appendChild(newRow);
+        }
     });
 </script>
 </body>
