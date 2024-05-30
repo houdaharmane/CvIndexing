@@ -1,18 +1,33 @@
 package com.baeldung.demo.Controller;
 
-import com.baeldung.demo.model.Candidate;
-import com.baeldung.demo.repository.CandidateRepository;
+import com.baeldung.demo.model.User;
+import com.baeldung.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class AuthController {
 
     @Autowired
-    private CandidateRepository candidateRepository;
+    private UserRepository userRepository;
+
+    @GetMapping("/register")
+    public String showRegisterForm() {
+        return "register";
+    }
+
+    @PostMapping("/register")
+    public String register(User user, Model model) {
+        User existingUser = userRepository.findByEmail(user.getEmail());
+        if (existingUser != null) {
+            model.addAttribute("error", "User with this email already exists.");
+            return "register";
+        }
+        userRepository.save(user);
+        return "redirect:/login";
+    }
 
     @GetMapping("/login")
     public String showLoginForm() {
@@ -20,19 +35,20 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(Candidate candidate, Model model) {
-        Candidate foundCandidate = candidateRepository.findByEmail(candidate.getEmail());
-        if (foundCandidate != null && foundCandidate.getPassword().equals(candidate.getPassword())) {
-            return "redirect:/candidateForm";
+    public String loginUser(@RequestParam("email") String email, @RequestParam("password") String password, Model model) {
+        User user = userRepository.findByEmail(email);
+        if (user != null && user.getPassword().equals(password)) {
+            return "redirect:/candidates/candidate";
         } else {
-            model.addAttribute("error", true);
+            model.addAttribute("error", "Invalid email or password");
             return "login";
         }
     }
 
-    @GetMapping("/candidateForm")
-    public String showCandidateForm(Model model) {
-        model.addAttribute("candidate", new Candidate());
+
+    @GetMapping("/candidates")
+    public String candidateForm() {
         return "CandidateForm";
     }
+
 }
