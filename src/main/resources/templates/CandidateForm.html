@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
@@ -8,14 +10,39 @@
     <style>
         body {
             display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .notification {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .notification.show {
+            opacity: 1;
         }
         .sidebar {
-            height: 100vh;
             width: 200px;
             background-color: #f8f9fa;
             padding-top: 20px;
-            position: fixed;
             transition: transform 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 999;
         }
         .sidebar.hidden {
             transform: translateX(-100%);
@@ -39,11 +66,8 @@
         .content {
             margin-left: 200px;
             padding: 20px;
-            width: 100%;
+            width: calc(100% - 200px);
             transition: margin-left 0.3s ease;
-        }
-        .content.full-width {
-            margin-left: 0;
         }
         .toggle-button {
             position: fixed;
@@ -58,17 +82,21 @@
     </style>
 </head>
 <body>
+
+<div class="notification" id="notification">
+    Candidate added successfully!
+</div>
+
 <div class="toggle-button" id="toggle-sidebar-button">
     <i class="fas fa-bars"></i>
 </div>
 <div class="sidebar" id="sidebar">
     <br>
-    <a href="login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
-    <a href="CandidateForm.html"><i class="fas fa-user-plus"></i> Candidate Form</a>
-    <a href="search.html"><i class="fas fa-search"></i> Search</a>
+    <a th:href="@{/login}"><i class="fas fa-sign-in-alt"></i> Logout</a>
+    <a th:href="@{/candidates/candidate}"><i class="fas fa-user-plus"></i> Candidate Form</a>
+    <a th:href="@{/chercher}"><i class="fas fa-search"></i> Search</a>
 </div>
 
-<br>
 <div class="content" id="content">
     <div class="container mt-5">
         <h1>Create Candidate</h1>
@@ -103,6 +131,7 @@
                     <th scope="col">Last Name</th>
                     <th scope="col">Email</th>
                     <th scope="col">File Name</th>
+                    <th scope="col">Actions</th>
                 </tr>
                 </thead>
                 <tbody id="candidates-table-body">
@@ -151,12 +180,79 @@
             const firstName = document.getElementById('firstName').value;
             const lastName = document.getElementById('lastName').value;
             const email = document.getElementById('email').value;
-            const fileName = document.getElementById('fileInput').value.split(/(\\|\/)/g).pop(); // Extracting only the file name
+            const fileName = document.getElementById('fileInput').value.split(/(\\|\/)/g).pop();
 
             const tableBody = document.getElementById('candidates-table-body');
             const newRow = document.createElement('tr');
-            newRow.innerHTML = '<td>' + firstName + '</td>' + '<td>' + lastName + '</td>' + '<td>' + email + '</td>' + '<td>' + fileName + '</td>';
+
+            newRow.innerHTML = `
+                <td>${firstName}</td>
+                <td>${lastName}</td>
+                <td>${email}</td>
+                <td>${fileName}</td>
+                <td>
+                    <button type="button" class="btn btn-warning edit-candidate-button">Edit</button>
+                    <button type="button" class="btn btn-danger delete-candidate-button">Delete</button>
+                    <button type="button" class="btn btn-success save-candidate-button d-none">Save</button>
+                </td>
+            `;
             tableBody.appendChild(newRow);
+
+            // Add event listeners for the edit and delete buttons
+            newRow.querySelector('.edit-candidate-button').addEventListener('click', function() {
+                editCandidate(newRow);
+            });
+
+            newRow.querySelector('.delete-candidate-button').addEventListener('click', function() {
+                deleteCandidate(newRow);
+            });
+
+            newRow.querySelector('.save-candidate-button').addEventListener('click', function() {
+                saveCandidate(newRow);
+            });
+
+            // Show the notification
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+
+            // Hide the notification after 3 seconds
+            setTimeout(function() {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function editCandidate(row) {
+            const cells = row.querySelectorAll('td');
+            const firstName = cells[0].innerText;
+            const lastName = cells[1].innerText;
+            const email = cells[2].innerText;
+
+            cells[0].innerHTML = `<input type="text" class="form-control" value="${firstName}">`;
+            cells[1].innerHTML = `<input type="text" class="form-control" value="${lastName}">`;
+            cells[2].innerHTML = `<input type="email" class="form-control" value="${email}">`;
+
+            row.querySelector('.edit-candidate-button').classList.add('d-none');
+            row.querySelector('.delete-candidate-button').classList.add('d-none');
+            row.querySelector('.save-candidate-button').classList.remove('d-none');
+        }
+
+        function saveCandidate(row) {
+            const cells = row.querySelectorAll('td');
+            const firstName = cells[0].querySelector('input').value;
+            const lastName = cells[1].querySelector('input').value;
+            const email = cells[2].querySelector('input').value;
+
+            cells[0].innerText = firstName;
+            cells[1].innerText = lastName;
+            cells[2].innerText = email;
+
+            row.querySelector('.edit-candidate-button').classList.remove('d-none');
+            row.querySelector('.delete-candidate-button').classList.remove('d-none');
+            row.querySelector('.save-candidate-button').classList.add('d-none');
+        }
+
+        function deleteCandidate(row) {
+            row.remove();
         }
     });
 </script>
