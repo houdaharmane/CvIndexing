@@ -65,6 +65,7 @@ public class CandidateController {
         candidate.setFileNameList(fileNames);
 
         candidateService.save(candidate);
+
         return "redirect:/chercher";
     }
 

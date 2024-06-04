@@ -11,6 +11,8 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 
 @Service
 public class KeywordSearchService {
@@ -22,7 +24,7 @@ public class KeywordSearchService {
 
     public void findByKeyword(final String keyword){
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(QueryBuilders.matchQuery("fileName", keyword))
+                .withQuery(QueryBuilders.matchQuery("content", keyword))
                 .build();
 
 
@@ -34,9 +36,32 @@ public class KeywordSearchService {
 
         System.out.println(resumes.getSearchHits().size() +" result  = size ");
 
-        resumes.getSearchHits().forEach(searchHit->{
-            System.out.println((searchHit.getContent().getContent()));
+        resumes.forEach(hit -> {
+            Resumes resume = hit.getContent();
+            System.out.println("Content: " + resume.getContent());
+            System.out.println("id: " + resume.getId());
+
+            Map<String, Object> meta = resume.getMeta();
+            if (meta != null) {
+                System.out.println("Author: " + meta.get("author"));
+                System.out.println("Title: " + meta.get("title"));
+            } else {
+                System.out.println("Meta: null");
+            }
+
+            Map<String, Object> file = resume.getFile();
+            if (file != null) {
+                System.out.println("File Extension: " + file.get("extension"));
+            } else {
+                System.out.println("File: null");
+            }
         });
+
+
+
+
+        }
+
 
 
         // Execute the search query
@@ -52,4 +77,3 @@ public class KeywordSearchService {
 
 
     }
-}

@@ -6,11 +6,20 @@ import java.util.Map;
 
 @Document(indexName = "resumes")
 public class Resumes {
+
+
+    private  String id;
     private String content;
     private Map<String, Object> meta;
     private Map<String, Object> file;
 
+    public String getId() {
+        return id;
+    }
 
+    public void setId(String id) {
+        this.id = id;
+    }
     public String getContent() {
         return content;
     }

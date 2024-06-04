@@ -17,4 +17,6 @@ public interface CandidateService {
 
 
     List<Candidate> findByKeyword(String keyword);
+
+
 }
