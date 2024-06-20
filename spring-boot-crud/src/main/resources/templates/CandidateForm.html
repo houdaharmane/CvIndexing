@@ -1,24 +1,321 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <title>Create candidate</title>
+    <meta charset="UTF-8">
+    <title>Create Candidate</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .content h1 {
+            color: #333;
+        }
+
+
+        .sidebar a:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .sidebar a {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .btn {
+            font-size: 16px;
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-left: 300px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            padding: 20px;
+            width: calc(100% - 280px);
+            transition: margin-left 0.3s ease;
+        }
+
+
+        .form-control {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
+            border: 1px solid #ccc;
+        }
+
+        .notification {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+
+        .sidebar {
+            width: 200px;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            transition: transform 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 999;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #333;
+            display: block;
+        }
+
+        .sidebar a:hover {
+            background-color: #ddd;
+            color: #000;
+        }
+
+        .sidebar .logout {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+        }
+
+
+        .toggle-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            cursor: pointer;
+        }
+
+        .toggle-button i {
+            font-size: 24px;
+        }
+
+    </style>
 </head>
 <body>
-    <h1>Create candidate:</h1>
-    <form action="/candidates" th:object="${candidate}" method="post" enctype="multipart/form-data">
-        <label>First Name: <input type="text" th:field="*{firstName}"/></label><br/>
-        <label>Last Name: <input type="text" th:field="*{lastName}"/></label><br/>
-        <label>File:<input type="file" name="file" multiple="multiple"/></label>
-        <input type="submit" value="Submit"/>
-    </form>
-    <script th:inline="javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelector('form').addEventListener('submit', function() {
-                window.location.href = '/chercher';
-            });
+
+<<div class="notification" id="notification">
+    Candidate added successfully!
+</div>
+
+<div class="sidebar" id="sidebar" style="width: 300px; background-color: #FFFFFF;">
+    <div style="margin-top: -50px; background-color: #F4F4F4; padding:50px 10px; text-align: center; width: 100%;">
+        <div style="background-color: #fff; padding: -2px ; width: 100%; border-radius: 10px">
+            <h1 style="display: inline-block; margin-right: 120px; font-size: 26px; font-weight: 800; margin-bottom: -24px; vertical-align: bottom; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">CVFinder</h1>
+            <a th:href="@{/login}" class="btn btn-outline-danger" style="display: inline-block; font-size: 14px; margin-left: 170px; margin-right: 10px; position: relative; top: -9px; font-family: Inter; font-weight: 600; padding:9px 20px; line-height: 18px; word-wrap: break-word; color: red; border-color: red; background-color: transparent;">
+                Logout
+            </a>
+        </div>
+
+        <div style="margin-top: 30px;">
+            <span th:text="'Welcome back'" style="font-size: 26px; font-weight: bold; color: #333;"></span>
+        </div>
+        <br>
+        <div style="margin-top: 20px; align-self: stretch; color: #68717A; font-size: 14px; font-family: Inter; font-weight: 300; line-height: 28px; word-wrap: break-word">Here where you can add a candidate</div>
+    </div>
+
+    <div style="width: 100%; height:47%; padding-left: 30px; padding-right: 30px; padding-top: 20px; padding-bottom: 20px; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 10px; display: inline-flex;">
+        <a th:href="@{/candidates/candidate}" class="button-link" style="display: block; width: 100%; border-radius: 5px; color: #fff; background-color: #7749F8; text-decoration: none; text-align: center; ">
+            <i class="fas fa-user-plus" style="margin-right: 5px;"></i> Create new candidate
+        </a>
+        <a th:href="@{/chercher}" class="button-link" style="display: block;  width: 100%; border-radius: 5px; color:#6610F2; background-color: #EBE5FC; text-decoration: none; text-align: center;">
+            <i class="fas fa-search" style="margin-right: 5px;"></i> Search for a candidate
+        </a>
+    </div>
+    <div style="margin-top: 20px; text-align: center;">
+        <img src="https://i.ibb.co/s1m4Wrs/Footer.png" alt="Image de footer" style="width: 100%;">
+    </div>
+
+
+</div>
+
+<div class="content" id="content">
+    <h1 style="font-family: Inter; font-size: 22px; font-weight: 700; line-height: 29.05px; margin-right: 860px">New Candidate</h1>
+    <div class="container mt-5">
+        <form th:action="@{/candidates}" th:object="${candidate}" method="post" enctype="multipart/form-data" id="candidate-form">
+            <div class="form-group d-flex">
+                <div class="mr-2">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" class="form-control" placeholder="Enter first name..." id="firstName" th:field="*{firstName}" required />
+                </div>
+                <div class="mr-2">
+                    <label for="lastName">Last Name:</label>
+                    <input type="text" class="form-control" placeholder="Enter last name..." id="lastName" th:field="*{lastName}" required />
+                </div>
+                <div class="mr-2">
+                    <label for="email">Email:</label>
+                    <input type="email" class="form-control" placeholder="Enter email..." id="email" th:field="*{email}" required />
+                </div>
+                <div>
+                    <label for="fileInput">Files:</label>
+                    <input type="file" name="files" class="form-control-file" id="fileInput" />
+                </div>
+            </div>
+            <br>
+            <button style="margin-left: 850px; background-color: transparent; border: 2px solid #6610F2; color: #6610F2;" type="button" class="btn btn-primary" id="add-candidate-button">Add Candidate</button>
+
+            <table class="table mt-5">
+                <thead>
+                <tr>
+                    <th scope="col">First Name</th>
+                    <th scope="col">Last Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">File Name</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+                <tbody id="candidates-table-body">
+                <!-- Rows for candidates will be dynamically added here -->
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-primary" id="submit-button" style="width: 100%; background-color: #7749F8; color: #FFFFFF; bottom: 0; margin-right: 5px;">Submit</button>
+        </form>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addCandidateButton = document.getElementById('add-candidate-button');
+        const submitButton = document.getElementById('submit-button');
+        let candidateCount = 0;
+
+        addCandidateButton.addEventListener('click', function() {
+            addCandidateToTable();
         });
 
-    </script>
+        submitButton.addEventListener('click', function() {
+            window.location.href = "search.html";
+        });
+
+        function addCandidateToTable() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const fileInput = document.getElementById('fileInput');
+            const fileName = fileInput.value.split(/(\\|\/)/g).pop();
+
+            const tableBody = document.getElementById('candidates-table-body');
+            const newRow = document.createElement('tr');
+            const candidateId = `candidate${candidateCount}`;
+            candidateCount++;
+
+            newRow.innerHTML = `
+                <td>${firstName}</td>
+                <td>${lastName}</td>
+                <td>${email}</td>
+                <td>${fileName}</td>
+                <td>
+                    <button type="button" class="btn btn-warning edit-candidate-button" data-id="${candidateId}">Edit</button>
+                    <button type="button" class="btn btn-danger delete-candidate-button">Delete</button>
+                    <button type="button" class="btn btn-success save-candidate-button d-none" data-id="${candidateId}">Save</button>
+                </td>
+            `;
+            newRow.setAttribute('id', candidateId);
+            tableBody.appendChild(newRow);
+
+            newRow.querySelector('.edit-candidate-button').addEventListener('click', function() {
+                editCandidate(newRow);
+            });
+
+            newRow.querySelector('.delete-candidate-button').addEventListener('click', function() {
+                deleteCandidate(newRow);
+            });
+
+            newRow.querySelector('.save-candidate-button').addEventListener('click', function() {
+                saveCandidate(newRow);
+            });
+
+            // Show the notification
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+
+            // Hide the notification after 7 seconds
+            setTimeout(function() {
+                notification.classList.remove('show');
+            }, 7000);
+        }
+
+        function editCandidate(row) {
+            const cells = row.querySelectorAll('td');
+            const firstName = cells[0].innerText;
+            const lastName = cells[1].innerText;
+            const email = cells[2].innerText;
+            const fileName = cells[3].innerText;
+
+            cells[0].innerHTML = `<input type="text" class="form-control" value="${firstName}" />`;
+            cells[1].innerHTML = `<input type="text" class="form-control" value="${lastName}" />`;
+            cells[2].innerHTML = `<input type="email" class="form-control" value="${email}" />`;
+            cells[3].innerHTML = `<div><input type="text" class="form-control" value="${fileName}" /></div>`;
+            row.querySelector('.edit-candidate-button').classList.add('d-none');
+            row.querySelector('.delete-candidate-button').classList.add('d-none');
+            row.querySelector('.save-candidate-button').classList.remove('d-none');
+
+            row.querySelector('.save-candidate-button').addEventListener('click', function() {
+                saveCandidate(row);
+            });
+        }
+
+        function saveCandidate(row) {
+            const cells = row.querySelectorAll('td');
+            const firstNameInput = cells[0].querySelector('input');
+            const lastNameInput = cells[1].querySelector('input');
+            const emailInput = cells[2].querySelector('input');
+            const fileNameInput = cells[3].querySelector('input');
+
+            const firstName = firstNameInput.value;
+            const lastName = lastNameInput.value;
+            const email = emailInput.value;
+            const fileName = fileNameInput.value;
+
+            cells[0].innerText = firstName;
+            cells[1].innerText = lastName;
+            cells[2].innerText = email;
+            cells[3].innerText = fileName;
+
+            row.querySelector('.edit-candidate-button').classList.remove('d-none');
+            row.querySelector('.delete-candidate-button').classList.remove('d-none');
+            row.querySelector('.save-candidate-button').classList.add('d-none');
+        }
+
+        function deleteCandidate(row) {
+            row.remove();
+        }
+    });
+</script>
+
 </body>
 </html>
-
