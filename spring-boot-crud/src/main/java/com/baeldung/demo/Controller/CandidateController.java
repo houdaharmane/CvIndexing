@@ -3,9 +3,7 @@ package com.baeldung.demo.Controller;
 
 import com.baeldung.demo.model.Candidate;
 import com.baeldung.demo.service.CandidateService;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -22,6 +20,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.FilenameUtils;
+
 
 
 @Controller
@@ -49,25 +49,28 @@ public class CandidateController {
     }
 
     @PostMapping
-    public String CreateCandidate(Model model, @ModelAttribute("candidate") Candidate candidate,@RequestParam("file") MultipartFile file ) throws IOException {
-
+    public String createCandidate(@ModelAttribute("candidate") Candidate candidate,
+                                  @RequestParam("files") MultipartFile [] files) throws IOException {
         File uploadDirectory = new File(UPLOAD_DIR);
         if (!uploadDirectory.exists()) {
             uploadDirectory.mkdirs();
         }
+        List<String> fileNames = new ArrayList<>();
+        for (MultipartFile file : files) {
+            byte[] bytes = file.getBytes();
+            String fileName = file.getOriginalFilename();
+            Path filePath = Paths.get(UPLOAD_DIR + File.separator + fileName);
+            Files.write(filePath, bytes);
+            fileNames.add(fileName);
+        }
 
-        byte[] bytes = file.getBytes();
-        String fileName = file.getOriginalFilename();
-        Path filePath = Paths.get(UPLOAD_DIR + File.separator + fileName);
-
-        Files.write(filePath, bytes);
-
-        candidate.setFileName(fileName.toString());
+        candidate.setFileNameList(fileNames);
 
         candidateService.save(candidate);
 
         return "redirect:/chercher";
     }
+
     @GetMapping("/download/{file}")
     public ResponseEntity<InputStreamResource> downloadFile(@PathVariable("file") String fileName) throws IOException {
         File file = new File(UPLOAD_DIR + File.separator + fileName);
@@ -81,4 +84,26 @@ public class CandidateController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
                 .body(resource);
     }
+    @GetMapping("/file-type")
+    @ResponseBody
+    public String getFileType(@RequestParam("fileName") String fileName) {
+        String fileType = "unknown";
+        if (fileName != null && !fileName.isEmpty()) {
+            String extension = FilenameUtils.getExtension(fileName);
+            if (extension != null) {
+                switch (extension.toLowerCase()) {
+                    case "pdf":
+                        fileType = "pdf";
+                        break;
+                    case "docx":
+                    case "doc":
+                        fileType = "word";
+                        break;
+                    case "xlsx":
+                }
+            }
+        }
+        return fileType;
+    }
 }
+
