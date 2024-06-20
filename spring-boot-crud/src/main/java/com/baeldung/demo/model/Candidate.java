@@ -2,38 +2,57 @@ package com.baeldung.demo.model;
 
 
 import java.io.Serializable;
-
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-
+import java.util.Arrays;
+import java.util.List;
+import javax.persistence.*;
 
 @Entity
 public class Candidate implements Serializable {
-    @javax.persistence.Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
+
     private String firstName;
     private String lastName;
-    private String fileName;
+    private String fileNames;
+    private String email;
 
-    public String getFileName() {
-        return fileName;
+
+
+    public String getEmail() {
+        return email;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFileNames() {
+        return fileNames;
+    }
+
+    public void setFileNames(String fileNames) {
+        this.fileNames = fileNames;
     }
 
 
+
+
+    public List<String> getFileNameList() {
+        return fileNames != null ? Arrays.asList(fileNames.split(",")) : null;
+    }
+
+
+    public void setFileNameList(List<String> fileNameList) {
+        this.fileNames = fileNameList != null ? String.join(",", fileNameList) : null;
+    }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getFirstName() {
